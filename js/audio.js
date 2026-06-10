@@ -5,19 +5,21 @@ const AudioMgr = {
     sfxGain: null,
     musicGain: null,
     muted: false,
+    sfxVolume: 0.6,
+    musicVolume: 0.3,
 
     init() {
         if (this.ctx) return;
         try {
             this.ctx = new (window.AudioContext || window.webkitAudioContext)();
             this.master = this.ctx.createGain();
-            this.master.gain.value = 0.5;
+            this.master.gain.value = this.muted ? 0 : 0.5;
             this.master.connect(this.ctx.destination);
             this.sfxGain = this.ctx.createGain();
-            this.sfxGain.gain.value = 0.6;
+            this.sfxGain.gain.value = this.sfxVolume;
             this.sfxGain.connect(this.master);
             this.musicGain = this.ctx.createGain();
-            this.musicGain.gain.value = 0.3;
+            this.musicGain.gain.value = this.musicVolume;
             this.musicGain.connect(this.master);
         } catch (e) {
             console.warn('Audio not available:', e);
@@ -33,6 +35,16 @@ const AudioMgr = {
     setMuted(m) {
         this.muted = m;
         if (this.master) this.master.gain.value = m ? 0 : 0.5;
+    },
+
+    setSfxVolume(v) {
+        this.sfxVolume = Utils.clamp(v, 0, 1);
+        if (this.sfxGain) this.sfxGain.gain.value = this.muted ? 0 : this.sfxVolume;
+    },
+
+    setMusicVolume(v) {
+        this.musicVolume = Utils.clamp(v, 0, 1);
+        if (this.musicGain) this.musicGain.gain.value = this.muted ? 0 : this.musicVolume;
     },
 
     // 创建噪声缓冲

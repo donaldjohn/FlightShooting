@@ -52,8 +52,14 @@
             if (!AudioMgr.muted) AudioMgr.playClick();
         });
 
+        // 音量控制
+        setupVolumeControls();
+
         // 触屏控制
         setupTouchControls();
+
+        // 颜色选择
+        setupColorPicker();
 
         // 显示历史最高分
         renderHighscores();
@@ -188,6 +194,87 @@
                 else if (Game.state === 'paused') Game.resume();
             });
         }
+    }
+
+    // 设置音量控制
+    function setupVolumeControls() {
+        // 从 localStorage 恢复音量
+        const sfxVol = localStorage.getItem('flightShooting_sfxVol');
+        const musVol = localStorage.getItem('flightShooting_musicVol');
+        if (sfxVol !== null) {
+            AudioMgr.setSfxVolume(parseInt(sfxVol) / 100);
+            const sfxEl = document.getElementById('sfxVolume');
+            const sfxVal = document.getElementById('sfxVolumeVal');
+            if (sfxEl) sfxEl.value = sfxVol;
+            if (sfxVal) sfxVal.textContent = sfxVol + '%';
+        }
+        if (musVol !== null) {
+            AudioMgr.setMusicVolume(parseInt(musVol) / 100);
+            const musEl = document.getElementById('musicVolume');
+            const musVal = document.getElementById('musicVolumeVal');
+            if (musEl) musEl.value = musVol;
+            if (musVal) musVal.textContent = musVol + '%';
+        }
+
+        const sfxEl = document.getElementById('sfxVolume');
+        const sfxVal = document.getElementById('sfxVolumeVal');
+        if (sfxEl) {
+            sfxEl.addEventListener('input', () => {
+                const v = parseInt(sfxEl.value);
+                AudioMgr.setSfxVolume(v / 100);
+                sfxVal.textContent = v + '%';
+                localStorage.setItem('flightShooting_sfxVol', v);
+            });
+        }
+
+        const musEl = document.getElementById('musicVolume');
+        const musVal = document.getElementById('musicVolumeVal');
+        if (musEl) {
+            musEl.addEventListener('input', () => {
+                const v = parseInt(musEl.value);
+                AudioMgr.setMusicVolume(v / 100);
+                musVal.textContent = v + '%';
+                localStorage.setItem('flightShooting_musicVol', v);
+            });
+        }
+    }
+
+    // 颜色映射 (RGB 16进制)
+    const PLAYER_COLORS = {
+        red:    { main: 0x3a4a5c, accent: 0xff3344 },
+        blue:   { main: 0x1e3a5f, accent: 0x339af0 },
+        green:  { main: 0x1e3a2a, accent: 0x51cf66 },
+        gold:   { main: 0x3a3520, accent: 0xffd43b },
+        purple: { main: 0x2a1e3a, accent: 0xcc5de8 },
+        white:  { main: 0x808890, accent: 0xf8f9fa }
+    };
+
+    let currentPlayerColor = 'red';
+
+    // 设置颜色选择器
+    function setupColorPicker() {
+        const saved = localStorage.getItem('flightShooting_color');
+        if (saved && PLAYER_COLORS[saved]) {
+            currentPlayerColor = saved;
+        }
+        // 标记当前选中的
+        document.querySelectorAll('.color-option').forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('data-color') === currentPlayerColor);
+            btn.addEventListener('click', () => {
+                const c = btn.getAttribute('data-color');
+                if (PLAYER_COLORS[c]) {
+                    currentPlayerColor = c;
+                    localStorage.setItem('flightShooting_color', c);
+                    document.querySelectorAll('.color-option').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    AudioMgr.playClick();
+                    // 立即更新玩家飞机颜色
+                    if (Game && Game.player) {
+                        Game.applyPlayerColor(c);
+                    }
+                }
+            });
+        });
     }
 
     function loop() {

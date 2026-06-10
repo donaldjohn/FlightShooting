@@ -73,6 +73,39 @@ const EnemyMgr = {
         }
     },
 
+    /**
+     * 检查附近玩家子弹，决定是否闪避
+     */
+    _checkDodge(e, playerPos) {
+        // 只有 fighter/bomber 会闪避
+        if (e.type !== 'fighter' && e.type !== 'bomber') return 0;
+        if (e.dodgeCooldown > 0) return e.dodgeDir;
+
+        // 找最近的玩家子弹
+        const bullets = BulletMgr.getPlayerBullets();
+        let nearest = null;
+        let nearestDist = 8; // 8 单位内才算威胁
+        for (const b of bullets) {
+            const dz = b.mesh.position.z - e.mesh.position.z;
+            if (dz < 0 || dz > 15) continue; // 子弹要在前方
+            const dx = b.mesh.position.x - e.mesh.position.x;
+            const dy = b.mesh.position.y - e.mesh.position.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < nearestDist) {
+                nearestDist = dist;
+                nearest = b;
+            }
+        }
+        if (!nearest) return 0;
+
+        // 计算闪避方向 (远离子弹的水平方向)
+        const dx = e.mesh.position.x - nearest.mesh.position.x;
+        const dodge = Math.sign(dx) * 8; // 8 单位/秒
+        e.dodgeCooldown = 0.5; // 0.5秒内持续闪避
+        e.dodgeDir = dodge;
+        return dodge;
+    },
+
     _spawn(spec) {
         let mesh;
         let cfg;
@@ -113,7 +146,9 @@ const EnemyMgr = {
             speed: spec.speed || (spec.type === 'scout' ? 18 : spec.type === 'fighter' ? 14 : 10),
             pattern: spec.pattern,
             time: 0,
-            lastFire: 0
+            lastFire: 0,
+            dodgeCooldown: 0,
+            dodgeDir: 0
         }, cfg);
 
         // BOSS 添加头顶血条
@@ -131,14 +166,26 @@ const EnemyMgr = {
         e.time += dt;
         AircraftFactory.animate(e.mesh, dt, 1);
 
+        // 闪避冷却
+        if (e.dodgeCooldown > 0) {
+            e.dodgeCooldown -= dt;
+            if (e.dodgeCooldown <= 0) {
+                e.dodgeCooldown = 0;
+                e.dodgeDir = 0;
+            }
+        }
+        // 检查是否需要闪避
+        const dodgeForce = this._checkDodge(e, playerPos);
+
         // 行为
         switch (e.behavior) {
             case 'straight':
                 e.mesh.position.z += e.speed * dt;
+                e.mesh.position.x += dodgeForce * dt;
                 break;
             case 'sine':
                 e.mesh.position.z += e.speed * dt;
-                e.mesh.position.x = e.spawnX + Math.sin(e.time * 1.5) * 6;
+                e.mesh.position.x = e.spawnX + Math.sin(e.time * 1.5) * 6 + dodgeForce * 0.3;
                 break;
             case 'dive':
                 if (e.mesh.position.z > -30) {
@@ -152,12 +199,12 @@ const EnemyMgr = {
                 break;
             case 'circle':
                 e.mesh.position.z += e.speed * 0.5 * dt;
-                e.mesh.position.x = Math.cos(e.time * 1.0 + e.spawnX) * 8;
+                e.mesh.position.x = Math.cos(e.time * 1.0 + e.spawnX) * 8 + dodgeForce * 0.3;
                 e.mesh.position.y = e.spawnY + Math.sin(e.time * 1.5) * 3;
                 break;
             case 'orbit':
                 e.mesh.position.z += e.speed * 0.3 * dt;
-                e.mesh.position.x = Math.cos(e.time * 1.2) * 10;
+                e.mesh.position.x = Math.cos(e.time * 1.2) * 10 + dodgeForce * 0.3;
                 e.mesh.position.y = 5 + Math.sin(e.time * 0.8) * 4;
                 break;
             case 'boss':
@@ -165,7 +212,12 @@ const EnemyMgr = {
                 return;
             default:
                 e.mesh.position.z += e.speed * dt;
+                e.mesh.position.x += dodgeForce * dt;
         }
+
+        // 限制敌机位置范围
+        e.mesh.position.x = Utils.clamp(e.mesh.position.x, -30, 30);
+        e.mesh.position.y = Utils.clamp(e.mesh.position.y, -15, 18);
 
         // 始终朝向飞行方向
         if (e.behavior !== 'dive') {

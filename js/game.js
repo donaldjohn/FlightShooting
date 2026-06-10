@@ -254,6 +254,36 @@ const Game = {
     },
 
     /**
+     * 应用玩家颜色
+     */
+    applyPlayerColor(colorKey) {
+        if (!this.player) return;
+        const colors = (typeof PLAYER_COLORS !== 'undefined') ? PLAYER_COLORS : {
+            red:    { main: 0x3a4a5c, accent: 0xff3344 },
+            blue:   { main: 0x1e3a5f, accent: 0x339af0 },
+            green:  { main: 0x1e3a2a, accent: 0x51cf66 },
+            gold:   { main: 0x3a3520, accent: 0xffd43b },
+            purple: { main: 0x2a1e3a, accent: 0xcc5de8 },
+            white:  { main: 0x808890, accent: 0xf8f9fa }
+        };
+        const c = colors[colorKey] || colors.red;
+        this.player.traverse(obj => {
+            if (obj.isMesh && obj.material) {
+                if (obj.material.color) {
+                    const origColor = obj.material.color.getHex();
+                    if (origColor === 0xff3344) {
+                        obj.material.color.setHex(c.accent);
+                        if (obj.material.emissive) obj.material.emissive.setHex(c.accent);
+                    }
+                    if (origColor === 0x3a4a5c || origColor === 0x2a3548 || origColor === 0x1a1f2a) {
+                        obj.material.color.setHex(c.main);
+                    }
+                }
+            }
+        });
+    },
+
+    /**
      * 开始关卡
      */
     startLevel(idx) {
@@ -282,6 +312,12 @@ const Game = {
         this.player.visible = true;
         this.camera.position.set(0, 3, 10);
         this.camera.lookAt(0, -2, -20);
+
+        // 应用玩家颜色 (从 localStorage 读取)
+        const savedColor = localStorage.getItem('flightShooting_color');
+        if (savedColor) {
+            this.applyPlayerColor(savedColor);
+        }
 
         // 加载关卡
         LevelMgr.load(idx, this.scene);

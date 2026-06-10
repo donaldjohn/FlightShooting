@@ -19,6 +19,17 @@
             <button class="btn btn-primary" id="btnStart">开始游戏</button>
             <button class="btn" id="btnInstructions">操作说明</button>
             <button class="btn btn-sound" id="btnSound">🔊 音效：开</button>
+            <div class="color-picker">
+                <h3>选择战机涂装</h3>
+                <div class="color-options">
+                    <button class="color-option active" data-color="red" style="--c1:#ff3344;--c2:#aa1122" title="红色"></button>
+                    <button class="color-option" data-color="blue" style="--c1:#339af0;--c2:#1971c2" title="蓝色"></button>
+                    <button class="color-option" data-color="green" style="--c1:#51cf66;--c2:#2f9e44" title="绿色"></button>
+                    <button class="color-option" data-color="gold" style="--c1:#ffd43b;--c2:#fab005" title="金色"></button>
+                    <button class="color-option" data-color="purple" style="--c1:#cc5de8;--c2:#862e9c" title="紫色"></button>
+                    <button class="color-option" data-color="white" style="--c1:#f8f9fa;--c2:#adb5bd" title="白色"></button>
+                </div>
+            </div>
             <div class="level-select">
                 <h3>选择关卡</h3>
                 <div class="level-buttons">
@@ -43,6 +54,18 @@
                 <li><b>P</b>：暂停</li>
                 <li><b>R</b>：重新开始当前关卡</li>
             </ul>
+            <div class="volume-controls">
+                <div class="vol-row">
+                    <label>🔊 音效音量</label>
+                    <input type="range" min="0" max="100" value="60" id="sfxVolume">
+                    <span id="sfxVolumeVal">60%</span>
+                </div>
+                <div class="vol-row">
+                    <label>🎵 音乐音量</label>
+                    <input type="range" min="0" max="100" value="30" id="musicVolume">
+                    <span id="musicVolumeVal">30%</span>
+                </div>
+            </div>
             <button class="btn" id="btnBack">返回</button>
         </div>
     </div>

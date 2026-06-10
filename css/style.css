@@ -202,6 +202,48 @@ html, body {
     text-align: left;
 }
 
+/* 颜色选择器 */
+.color-picker {
+    margin: 16px 0;
+    text-align: center;
+}
+
+.color-picker h3 {
+    color: #aaa;
+    font-weight: normal;
+    letter-spacing: 4px;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.color-options {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.color-option {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #555;
+    background: linear-gradient(135deg, var(--c1), var(--c2));
+    cursor: pointer;
+    transition: all 0.2s;
+    padding: 0;
+}
+
+.color-option:hover {
+    transform: scale(1.1);
+    border-color: #fff;
+}
+
+.color-option.active {
+    border-color: #ffd43b;
+    box-shadow: 0 0 12px rgba(255, 212, 59, 0.6);
+    transform: scale(1.1);
+}
+
 .highscore-box h3 {
     text-align: center;
     color: #ffd43b;
@@ -711,4 +753,62 @@ html, body {
         transform: scale(1) rotate(0deg);
         opacity: 1;
     }
+}
+
+/* 音量控制 */
+.volume-controls {
+    margin-top: 24px;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 6px;
+}
+
+.vol-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 12px 0;
+    color: #fff;
+}
+
+.vol-row label {
+    width: 100px;
+    text-align: right;
+    font-size: 14px;
+    color: #4dabf7;
+}
+
+.vol-row input[type="range"] {
+    flex: 1;
+    height: 6px;
+    -webkit-appearance: none;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    outline: none;
+}
+
+.vol-row input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    background: #4dabf7;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid #fff;
+}
+
+.vol-row input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background: #4dabf7;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid #fff;
+}
+
+.vol-row span {
+    width: 50px;
+    color: #ffd43b;
+    font-family: 'Consolas', monospace;
+    font-size: 14px;
 }
