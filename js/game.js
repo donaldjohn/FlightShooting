@@ -400,6 +400,12 @@ const Game = {
                 const prevBest = arr.length > 0 ? Math.max(...arr.map(s => s.score)) : 0;
                 isNewRecord = this.score > prevBest;
             } catch (e) {}
+
+            // 成就触发
+            Achievements.unlock('first_victory');
+            if (this.playerHealth >= this.playerMaxHealth) {
+                Achievements.unlock('perfect_clear');
+            }
         }
 
         document.getElementById('endTitle').textContent = victory ? '✈ 通关成功！' : '✈ 任务失败';
@@ -728,6 +734,17 @@ const Game = {
 
         if (this.combo > 1) {
             HUD.showMessage(`连击 x${this.combo}  +${total}`, 1.0);
+        }
+
+        // 成就触发
+        if (this.combo >= 10) {
+            Achievements.unlock('combo_10');
+        }
+        if (this.kills >= 100) {
+            Achievements.unlock('centurion');
+        }
+        if (e.type === 'boss') {
+            Achievements.unlock('boss_hunter');
         }
 
         // 分数弹出

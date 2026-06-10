@@ -8,6 +8,8 @@
             Game.init();
             HUD.init();
             AudioMgr.init();
+            Tutorial.init();
+            Achievements.init();
             setupUI();
             loop();
         } catch (e) {
@@ -113,7 +115,19 @@
         document.getElementById('endScreen').style.display = 'none';
         document.getElementById('pauseScreen').style.display = 'none';
         document.getElementById('gameScreen').style.display = 'block';
-        Game.startLevel(levelIdx);
+        // 首次玩家显示教程
+        if (Tutorial.shouldShow() && !Tutorial.isActive) {
+            Tutorial.show();
+            // 教程关闭后再开始游戏
+            const checkInterval = setInterval(() => {
+                if (!Tutorial.isActive) {
+                    clearInterval(checkInterval);
+                    Game.startLevel(levelIdx);
+                }
+            }, 200);
+        } else {
+            Game.startLevel(levelIdx);
+        }
     }
 
     // 渲染历史最高分

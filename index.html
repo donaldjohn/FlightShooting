@@ -105,6 +105,31 @@
         </div>
         <!-- 伤害数字容器 -->
         <div id="damageContainer" class="damage-container"></div>
+        <!-- 首次玩家教程 -->
+        <div class="tutorial-overlay" id="tutorialOverlay" style="display:none;">
+            <div class="tutorial-backdrop"></div>
+            <div class="tutorial-step" id="tutorialStep">
+                <div class="tutorial-icon" id="tutIcon">✈️</div>
+                <h2 id="tutTitle">欢迎来到天空霸者！</h2>
+                <p id="tutDesc">使用 W/A/S/D 或方向键控制战机移动</p>
+                <div class="tutorial-progress" id="tutProgress">
+                    <span class="dot active"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+                <button class="btn btn-primary" id="tutNext">下一步</button>
+                <label class="tutorial-skip">
+                    <input type="checkbox" id="tutSkip"> 不再显示
+                </label>
+            </div>
+        </div>
+        <!-- 成就通知 -->
+        <div class="achievement-notification" id="achievementNotification">
+            <div class="ach-title">🏆 成就解锁</div>
+            <div class="ach-name" id="achName">成就名称</div>
+            <div class="ach-desc" id="achDesc">成就描述</div>
+        </div>
         <!-- 移动端虚拟控制 -->
         <div class="touch-controls" id="touchControls" style="display:none;">
             <div class="touch-pad">
@@ -165,6 +190,7 @@
     <script src="js/damageNumbers.js"></script>
     <script src="js/level.js"></script>
     <script src="js/hud.js"></script>
+    <script src="js/tutorial.js"></script>
     <script src="js/game.js"></script>
     <script src="js/main.js"></script>
 </body>
