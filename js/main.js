@@ -73,6 +73,9 @@
         // 颜色选择
         setupColorPicker();
 
+        // 难度选择
+        setupDifficultyPicker();
+
         // 显示历史最高分
         renderHighscores();
 
@@ -286,6 +289,64 @@
     };
 
     let currentPlayerColor = 'red';
+
+    // 难度设置
+    const DIFFICULTY_SETTINGS = {
+        easy: {
+            name: '简单',
+            enemyHealthMul: 0.6,
+            enemyDamageMul: 0.5,
+            enemySpeedMul: 0.85,
+            enemyCount: 4,
+            playerRegen: 1, // 每秒回血
+            scoreMul: 0.8
+        },
+        normal: {
+            name: '普通',
+            enemyHealthMul: 1.0,
+            enemyDamageMul: 1.0,
+            enemySpeedMul: 1.0,
+            enemyCount: 6,
+            playerRegen: 0,
+            scoreMul: 1.0
+        },
+        hard: {
+            name: '困难',
+            enemyHealthMul: 1.5,
+            enemyDamageMul: 1.5,
+            enemySpeedMul: 1.2,
+            enemyCount: 8,
+            playerRegen: 0,
+            scoreMul: 1.5
+        }
+    };
+
+    let currentDifficulty = 'normal';
+    // 暴露到全局
+    window.getCurrentDifficulty = () => currentDifficulty;
+    window.DIFFICULTY_SETTINGS = DIFFICULTY_SETTINGS;
+
+    // 设置难度选择器
+    function setupDifficultyPicker() {
+        const saved = localStorage.getItem('flightShooting_difficulty');
+        if (saved && DIFFICULTY_SETTINGS[saved]) {
+            currentDifficulty = saved;
+        }
+        // 标记当前选中的
+        document.querySelectorAll('.diff-option').forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('data-diff') === currentDifficulty);
+            btn.addEventListener('click', () => {
+                const d = btn.getAttribute('data-diff');
+                if (DIFFICULTY_SETTINGS[d]) {
+                    currentDifficulty = d;
+                    localStorage.setItem('flightShooting_difficulty', d);
+                    document.querySelectorAll('.diff-option').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    AudioMgr.playClick();
+                }
+            });
+        });
+    }
 
     // 设置颜色选择器
     function setupColorPicker() {

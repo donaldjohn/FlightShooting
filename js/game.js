@@ -284,6 +284,26 @@ const Game = {
     },
 
     /**
+     * 获取当前难度设置
+     */
+    getDifficulty() {
+        // 优先从全局获取 (主菜单设置的)
+        let d = 'normal';
+        if (typeof window.getCurrentDifficulty === 'function') {
+            d = window.getCurrentDifficulty();
+        } else if (typeof currentDifficulty !== 'undefined') {
+            d = currentDifficulty;
+        } else {
+            d = localStorage.getItem('flightShooting_difficulty') || 'normal';
+        }
+        const settings = { enemyHealthMul: 1, enemyDamageMul: 1, enemySpeedMul: 1, enemyCount: 6, playerRegen: 0, scoreMul: 1 };
+        if (typeof DIFFICULTY_SETTINGS !== 'undefined' && DIFFICULTY_SETTINGS[d]) {
+            return DIFFICULTY_SETTINGS[d];
+        }
+        return settings;
+    },
+
+    /**
      * 开始关卡
      */
     startLevel(idx) {
@@ -293,6 +313,7 @@ const Game = {
         this.maxCombo = 0;
         this.kills = 0;
         this.playerHealth = this.playerMaxHealth;
+        this.playerRegenTimer = 0;
         this.playerInvuln = 0;
         this.levelEnded = false;
         this.boost = false;
@@ -662,6 +683,17 @@ const Game = {
                 ring.scale.setScalar(1 + Math.sin(t + i) * 0.1);
             });
         }
+
+        // 简单难度自动回血
+        const diff = this.getDifficulty();
+        if (diff.playerRegen > 0 && this.playerHealth < this.playerMaxHealth) {
+            this.playerRegenTimer = (this.playerRegenTimer || 0) + dt;
+            if (this.playerRegenTimer >= 1) {
+                this.playerRegenTimer = 0;
+                this.playerHealth = Math.min(this.playerMaxHealth, this.playerHealth + diff.playerRegen);
+                HUD.setHealth(this.playerHealth);
+            }
+        }
     },
 
     _updateCamera(dt) {
@@ -854,6 +886,9 @@ const Game = {
     },
 
     _takeDamage(d) {
+        // 应用难度伤害倍数
+        const diff = this.getDifficulty();
+        d = d * (diff.enemyDamageMul || 1);
         this.playerHealth -= d;
         this.playerInvuln = 1.0;
         HUD.setHealth(this.playerHealth);

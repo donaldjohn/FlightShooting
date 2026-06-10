@@ -11,6 +11,8 @@ const EnemyMgr = {
         this.enemies = [];
         this.spawnQueue = [];
         this.spawnTimer = 0;
+        // 从游戏获取难度设置
+        this.maxAlive = (Game.getDifficulty && Game.getDifficulty().enemyCount) || 6;
     },
 
     reset() {
@@ -54,6 +56,10 @@ const EnemyMgr = {
     },
 
     update(dt, levelTime, playerPos, game) {
+        // 实时更新 maxAlive (难度可能中途变化)
+        if (Game.getDifficulty) {
+            this.maxAlive = Game.getDifficulty().enemyCount;
+        }
         // 生成
         while (this.spawnQueue.length > 0 && this.spawnQueue[0].delay <= levelTime && this.enemies.length < this.maxAlive) {
             const spec = this.spawnQueue.shift();
@@ -109,6 +115,8 @@ const EnemyMgr = {
     _spawn(spec) {
         let mesh;
         let cfg;
+        // 应用难度设置
+        const diff = (Game.getDifficulty && Game.getDifficulty()) || { enemyHealthMul: 1, enemySpeedMul: 1 };
         switch (spec.type) {
             case 'scout':
                 mesh = AircraftFactory.createScout();
@@ -129,6 +137,12 @@ const EnemyMgr = {
             default:
                 return;
         }
+        // 应用难度倍数
+        cfg.health = Math.max(1, Math.round(cfg.health * diff.enemyHealthMul));
+        cfg.maxHealth = cfg.health;
+        cfg.score = Math.round(cfg.score * (diff.scoreMul || 1));
+        const baseSpeed = spec.speed || (spec.type === 'scout' ? 18 : spec.type === 'fighter' ? 14 : spec.type === 'bomber' ? 10 : 12);
+        spec.speed = baseSpeed * diff.enemySpeedMul;
 
         mesh.position.set(spec.x, spec.y, spec.z);
         // 初始朝向玩家

@@ -813,6 +813,73 @@ html, body {
     font-size: 14px;
 }
 
+/* 难度选择器 */
+.difficulty-picker {
+    margin: 16px 0;
+    text-align: center;
+}
+
+.difficulty-picker h3 {
+    color: #aaa;
+    font-weight: normal;
+    letter-spacing: 4px;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.difficulty-options {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.diff-option {
+    background: rgba(0, 0, 0, 0.4);
+    border: 2px solid #555;
+    border-radius: 8px;
+    padding: 12px 18px;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    min-width: 100px;
+}
+
+.diff-option:hover {
+    border-color: #4dabf7;
+    background: rgba(77, 171, 247, 0.2);
+    transform: translateY(-2px);
+}
+
+.diff-option.active {
+    border-color: #ffd43b;
+    background: rgba(255, 212, 59, 0.15);
+    box-shadow: 0 0 12px rgba(255, 212, 59, 0.4);
+}
+
+.diff-icon {
+    font-size: 32px;
+    margin-bottom: 4px;
+}
+
+.diff-name {
+    font-size: 16px;
+    font-weight: bold;
+    color: #4dabf7;
+    margin-bottom: 4px;
+    letter-spacing: 2px;
+}
+
+.diff-option.active .diff-name {
+    color: #ffd43b;
+}
+
+.diff-desc {
+    font-size: 11px;
+    color: #888;
+    line-height: 1.3;
+}
+
 /* 关于页面 */
 .about-panel {
     position: fixed;
