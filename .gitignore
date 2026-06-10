@@ -1,0 +1,12 @@
+# 测试截图和临时文件
+/assets/
+*.log
+.DS_Store
+Thumbs.db
+
+# 编辑器配置
+.vscode/
+.idea/
+*.swp
+*.swo
+.claude/

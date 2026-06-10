@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>天空霸者 - 飞行射击游戏</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- 启动画面 -->
+    <div id="startScreen" class="screen">
+        <div class="bg-stars"></div>
+        <div class="title-container">
+            <h1 class="game-title">天空霸者</h1>
+            <h2 class="game-subtitle">SKY DOMINATION</h2>
+            <p class="game-desc">驾驶战机，征服天空</p>
+        </div>
+        <div class="menu">
+            <button class="btn btn-primary" id="btnStart">开始游戏</button>
+            <button class="btn" id="btnInstructions">操作说明</button>
+            <div class="level-select">
+                <h3>选择关卡</h3>
+                <div class="level-buttons">
+                    <button class="btn-level" data-level="1">第1关<br><span>训练场</span></button>
+                    <button class="btn-level" data-level="2">第2关<br><span>峡谷风暴</span></button>
+                    <button class="btn-level" data-level="3">第3关<br><span>云层激战</span></button>
+                    <button class="btn-level" data-level="4">第4关<br><span>终极BOSS</span></button>
+                </div>
+            </div>
+        </div>
+        <div class="instructions" id="instructions" style="display:none;">
+            <h3>操作说明</h3>
+            <ul>
+                <li><b>W/S</b> 或 <b>↑/↓</b>：俯仰（机头上抬/下俯）</li>
+                <li><b>A/D</b> 或 <b>←/→</b>：左右滚转</li>
+                <li><b>Q/E</b> 或 <b>Space</b>：发射子弹</li>
+                <li><b>Shift</b>：加速</li>
+                <li><b>P</b>：暂停</li>
+                <li><b>R</b>：重新开始当前关卡</li>
+            </ul>
+            <button class="btn" id="btnBack">返回</button>
+        </div>
+    </div>
+
+    <!-- 游戏主界面 -->
+    <div id="gameScreen" class="screen" style="display:none;">
+        <canvas id="gameCanvas"></canvas>
+        <!-- HUD -->
+        <div id="hud" class="hud">
+            <div class="hud-top">
+                <div class="hud-left">
+                    <div class="hud-item">关卡: <span id="hudLevel">1</span></div>
+                    <div class="hud-item">分数: <span id="hudScore">0</span></div>
+                    <div class="hud-item">连击: <span id="hudCombo">0</span>x</div>
+                </div>
+                <div class="hud-center">
+                    <div id="hudMessage" class="hud-message"></div>
+                </div>
+                <div class="hud-right">
+                    <div class="hud-item">生命: <span id="hudHealth">100</span></div>
+                    <div class="hud-item">弹药: <span id="hudAmmo">∞</span></div>
+                    <div class="hud-item">时间: <span id="hudTime">00:00</span></div>
+                </div>
+            </div>
+            <div class="hud-bottom">
+                <div class="health-bar">
+                    <div class="health-fill" id="healthFill"></div>
+                </div>
+                <div class="boss-hp" id="bossHp" style="display:none;">
+                    <div class="boss-name">BOSS</div>
+                    <div class="health-bar boss-bar">
+                        <div class="health-fill boss-fill" id="bossFill"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 暂停界面 -->
+    <div id="pauseScreen" class="screen overlay" style="display:none;">
+        <div class="panel">
+            <h2>游戏暂停</h2>
+            <button class="btn btn-primary" id="btnResume">继续</button>
+            <button class="btn" id="btnRestart">重新开始</button>
+            <button class="btn" id="btnQuit">返回主菜单</button>
+        </div>
+    </div>
+
+    <!-- 结束界面 -->
+    <div id="endScreen" class="screen overlay" style="display:none;">
+        <div class="panel">
+            <h2 id="endTitle">战斗结束</h2>
+            <div class="end-stats">
+                <p>本关得分: <span id="endScore">0</span></p>
+                <p>最高连击: <span id="endCombo">0</span></p>
+                <p>击毁敌机: <span id="endKills">0</span></p>
+                <p>总积分: <span id="endTotal">0</span></p>
+            </div>
+            <button class="btn btn-primary" id="btnNext">下一关</button>
+            <button class="btn" id="btnReplay">重新挑战</button>
+            <button class="btn" id="btnMenu">返回主菜单</button>
+        </div>
+    </div>
+
+    <!-- Three.js (来自CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
+    <!-- 游戏模块 -->
+    <script src="js/utils.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/aircraft.js"></script>
+    <script src="js/bullet.js"></script>
+    <script src="js/enemy.js"></script>
+    <script src="js/explosion.js"></script>
+    <script src="js/level.js"></script>
+    <script src="js/hud.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
