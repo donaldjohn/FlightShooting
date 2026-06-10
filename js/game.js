@@ -78,6 +78,7 @@ const Game = {
         BulletMgr.init(this.scene);
         EnemyMgr.init(this.scene);
         ExplosionMgr.init(this.scene);
+        PowerupMgr.init(this.scene);
 
         this.clock = new THREE.Clock();
         this._setupInput();
@@ -206,6 +207,7 @@ const Game = {
         BulletMgr.reset();
         EnemyMgr.reset();
         ExplosionMgr.reset();
+        PowerupMgr.reset();
 
         // 重置玩家位置和摄像机
         this.player.position.set(0, 0, 0);
@@ -237,6 +239,9 @@ const Game = {
         this.state = 'playing';
         this.startTime = performance.now();
         this.clock.start();
+
+        // 启动背景音乐
+        AudioMgr.startMusic();
     },
 
     pause() {
@@ -268,6 +273,7 @@ const Game = {
         BulletMgr.reset();
         EnemyMgr.reset();
         ExplosionMgr.reset();
+        AudioMgr.stopMusic();
     },
 
     endLevel(victory) {
@@ -347,6 +353,11 @@ const Game = {
 
         // 爆炸
         ExplosionMgr.update(dt);
+
+        // 道具
+        PowerupMgr.update(dt, this.player.position, (type) => {
+            PowerupMgr.applyEffect(type);
+        });
 
         // 玩家射击
         this._handleShooting(dt);
@@ -465,13 +476,16 @@ const Game = {
         // 玩家在 +Z 方向飞行，敌机在 -Z 方向；子弹朝 -Z 飞
         const dir = new THREE.Vector3(0, 0, -1);
         // 双管
+        const dmg = PowerupMgr.isActive('damage') ? 2 : 1;
         BulletMgr.spawnPlayerBullet(
             new THREE.Vector3(this.player.position.x + 0.6, this.player.position.y - 0.2, this.player.position.z - 1.5),
-            dir
+            dir,
+            dmg
         );
         BulletMgr.spawnPlayerBullet(
             new THREE.Vector3(this.player.position.x - 0.6, this.player.position.y - 0.2, this.player.position.z - 1.5),
-            dir
+            dir,
+            dmg
         );
     },
 
@@ -567,6 +581,9 @@ const Game = {
         // 爆炸特效
         const isBig = e.type === 'boss' || e.type === 'bomber';
         ExplosionMgr.spawn(e.mesh.position.clone(), isBig ? 2.5 : 1.2, isBig);
+
+        // 道具掉落
+        PowerupMgr.tryDrop(e.mesh.position.clone(), e.type);
 
         // BOSS 死亡
         if (e.type === 'boss') {

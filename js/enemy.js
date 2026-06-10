@@ -91,7 +91,7 @@ const EnemyMgr = {
                 break;
             case 'boss':
                 mesh = AircraftFactory.createBoss();
-                cfg = { health: 50, maxHealth: 50, score: 5000, fireRate: 0.3, isBoss: true };
+                cfg = { health: 100, maxHealth: 100, score: 5000, fireRate: 0.4, isBoss: true, phase: 1 };
                 break;
             default:
                 return;
@@ -178,17 +178,65 @@ const EnemyMgr = {
     },
 
     _updateBoss(e, dt, playerPos, game) {
-        // BOSS 移动模式
-        e.mesh.position.z = -40 + Math.sin(e.time * 0.3) * 5;
-        e.mesh.position.x = Math.sin(e.time * 0.5) * 8;
-        e.mesh.position.y = Math.cos(e.time * 0.4) * 4;
+        // BOSS 阶段 (血量决定)
+        const hpPercent = e.health / e.maxHealth;
+        if (hpPercent < 0.3 && e.phase < 3) {
+            e.phase = 3;
+            e.fireRate = 0.2;
+            AudioMgr.playWarning();
+            HUD.showMessage('⚠ BOSS 狂暴模式！', 2);
+        } else if (hpPercent < 0.6 && hpPercent >= 0.3 && e.phase < 2) {
+            e.phase = 2;
+            e.fireRate = 0.3;
+            HUD.showMessage('⚠ BOSS 进入第二阶段', 2);
+        }
+
+        // BOSS 移动模式 - 阶段越高移动越快
+        const moveSpeed = e.phase === 3 ? 0.8 : e.phase === 2 ? 0.5 : 0.3;
+        e.mesh.position.z = -40 + Math.sin(e.time * moveSpeed) * 6;
+        e.mesh.position.x = Math.sin(e.time * moveSpeed * 1.5) * 10;
+        e.mesh.position.y = Math.cos(e.time * moveSpeed * 1.2) * 5;
         e.mesh.lookAt(playerPos);
+
+        // 阶段3 召唤小弟
+        if (e.phase === 3 && e.time - (e.lastSummon || 0) > 8) {
+            this._spawnMinions(e);
+            e.lastSummon = e.time;
+        }
 
         // 多方向射击
         if (e.time - e.lastFire > e.fireRate) {
             this._fireBoss(e, playerPos);
             e.lastFire = e.time;
         }
+    },
+
+    _spawnMinions(boss) {
+        for (let i = 0; i < 3; i++) {
+            const pos = boss.mesh.position.clone();
+            pos.x += Utils.rand(-5, 5);
+            pos.y += Utils.rand(-3, 3);
+            pos.z -= 5;
+            const mesh = AircraftFactory.createFighter();
+            mesh.position.copy(pos);
+            this.scene.add(mesh);
+            this.enemies.push({
+                mesh,
+                type: 'fighter',
+                spawnZ: pos.z,
+                spawnX: pos.x,
+                spawnY: pos.y,
+                behavior: 'straight',
+                speed: 16,
+                health: 2,
+                maxHealth: 2,
+                score: 200,
+                fireRate: 1.2,
+                time: 0,
+                lastFire: 0
+            });
+        }
+        HUD.showMessage('⚠ BOSS 召唤战斗机！', 2);
     },
 
     _fireAtPlayer(e, playerPos) {
@@ -204,18 +252,50 @@ const EnemyMgr = {
     _fireBoss(e, playerPos) {
         const pos = e.mesh.position.clone();
         const centerDir = new THREE.Vector3().subVectors(playerPos, pos).normalize();
-        // 中心三发
-        BulletMgr.spawnEnemyBullet(pos, centerDir, { speed: 30, damage: 15, color: 0xffaa00 });
 
-        // 散射
-        for (let i = 0; i < 6; i++) {
-            const angle = (i / 6) * Math.PI * 2;
-            const dir = new THREE.Vector3(
-                Math.cos(angle) * 0.6,
-                Math.sin(angle) * 0.6,
-                0.7
-            ).normalize();
-            BulletMgr.spawnEnemyBullet(pos, dir, { speed: 22, damage: 10, color: 0xff3333 });
+        // 阶段3 弹幕更密集
+        if (e.phase === 3) {
+            // 中心三发
+            for (let i = -1; i <= 1; i++) {
+                const d = centerDir.clone();
+                d.x += i * 0.05;
+                BulletMgr.spawnEnemyBullet(pos, d, { speed: 32, damage: 15, color: 0xffaa00 });
+            }
+            // 12 向散射
+            for (let i = 0; i < 12; i++) {
+                const angle = (i / 12) * Math.PI * 2;
+                const dir = new THREE.Vector3(
+                    Math.cos(angle) * 0.7,
+                    Math.sin(angle) * 0.7,
+                    0.7
+                ).normalize();
+                BulletMgr.spawnEnemyBullet(pos, dir, { speed: 24, damage: 10, color: 0xff3333 });
+            }
+        } else if (e.phase === 2) {
+            // 中心一发
+            BulletMgr.spawnEnemyBullet(pos, centerDir, { speed: 32, damage: 15, color: 0xffaa00 });
+            // 8 向散射
+            for (let i = 0; i < 8; i++) {
+                const angle = (i / 8) * Math.PI * 2;
+                const dir = new THREE.Vector3(
+                    Math.cos(angle) * 0.65,
+                    Math.sin(angle) * 0.65,
+                    0.7
+                ).normalize();
+                BulletMgr.spawnEnemyBullet(pos, dir, { speed: 23, damage: 10, color: 0xff3333 });
+            }
+        } else {
+            // 阶段1
+            BulletMgr.spawnEnemyBullet(pos, centerDir, { speed: 30, damage: 15, color: 0xffaa00 });
+            for (let i = 0; i < 6; i++) {
+                const angle = (i / 6) * Math.PI * 2;
+                const dir = new THREE.Vector3(
+                    Math.cos(angle) * 0.6,
+                    Math.sin(angle) * 0.6,
+                    0.7
+                ).normalize();
+                BulletMgr.spawnEnemyBullet(pos, dir, { speed: 22, damage: 10, color: 0xff3333 });
+            }
         }
     },
 

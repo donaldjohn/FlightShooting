@@ -177,6 +177,62 @@ html, body {
     letter-spacing: 2px;
 }
 
+.highscore-box {
+    margin-top: 30px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid #ffd43b;
+    border-radius: 6px;
+    padding: 16px 24px;
+    min-width: 400px;
+    max-width: 500px;
+    text-align: left;
+}
+
+.highscore-box h3 {
+    text-align: center;
+    color: #ffd43b;
+    margin-bottom: 12px;
+    letter-spacing: 3px;
+    font-size: 16px;
+}
+
+#highscoreList {
+    font-family: 'Consolas', monospace;
+    font-size: 14px;
+    line-height: 1.8;
+    color: #fff;
+}
+
+.highscore-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 8px;
+    border-bottom: 1px dashed rgba(255, 212, 59, 0.2);
+}
+
+.highscore-item:last-child {
+    border-bottom: none;
+}
+
+.highscore-item .rank {
+    color: #ffd43b;
+    width: 30px;
+}
+
+.highscore-item .name {
+    color: #4dabf7;
+}
+
+.highscore-item .score {
+    color: #51cf66;
+    font-weight: bold;
+}
+
+.highscore-item .date {
+    color: #888;
+    font-size: 12px;
+}
+
 .instructions {
     position: absolute;
     top: 50%;
@@ -343,6 +399,37 @@ html, body {
 .boss-fill {
     background: linear-gradient(90deg, #c92a2a, #ff6b6b);
     transition: width 0.3s;
+}
+
+.powerup-indicators {
+    margin-top: 12px;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    height: 24px;
+}
+
+.powerup-icon {
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid;
+    border-radius: 4px;
+    padding: 2px 10px;
+    font-size: 14px;
+    color: #fff;
+    font-family: 'Consolas', monospace;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.powerup-icon.damage {
+    border-color: #ffd43b;
+    color: #ffd43b;
+}
+
+.powerup-icon.shield {
+    border-color: #4dabf7;
+    color: #4dabf7;
 }
 
 /* 准星 */

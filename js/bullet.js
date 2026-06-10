@@ -21,8 +21,12 @@ const BulletMgr = {
     /**
      * 创建玩家子弹 - 流光弹
      */
-    spawnPlayerBullet(pos, dir) {
+    spawnPlayerBullet(pos, dir, damage = 1) {
         const mesh = this._createPlayerBulletMesh();
+        if (damage > 1) {
+            // 双倍伤害时子弹变大变金
+            mesh.scale.set(1.5, 1.5, 1.5);
+        }
         mesh.position.copy(pos);
         this.scene.add(mesh);
 
@@ -38,7 +42,7 @@ const BulletMgr = {
             speed: 80,
             life: 2.5,
             from: 'player',
-            damage: 1,
+            damage: damage,
             isEnemy: false
         });
         AudioMgr.playShoot();

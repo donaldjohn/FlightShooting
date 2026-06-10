@@ -11,6 +11,7 @@ const HUD = {
     elBossHp: null,
     elBossFill: null,
     elGameScreen: null,
+    elPowerupIndicators: null,
 
     messageTimer: 0,
     comboTimer: 0,
@@ -27,6 +28,7 @@ const HUD = {
         this.elBossHp = document.getElementById('bossHp');
         this.elBossFill = document.getElementById('bossFill');
         this.elGameScreen = document.getElementById('gameScreen');
+        this.elPowerupIndicators = document.getElementById('powerupIndicators');
     },
 
     setLevel(n) {
@@ -96,6 +98,15 @@ const HUD = {
             if (this.comboTimer <= 0) {
                 this.elCombo.textContent = '0';
             }
+        }
+        // 更新道具指示
+        if (this.elPowerupIndicators && typeof PowerupMgr !== 'undefined') {
+            const effects = PowerupMgr.getActiveEffects();
+            this.elPowerupIndicators.innerHTML = effects.map(e => {
+                if (e.type === 'damage') return `<span class="powerup-icon damage">⚡ 双倍伤害 ${e.time.toFixed(1)}s</span>`;
+                if (e.type === 'shield') return `<span class="powerup-icon shield">🛡 护盾 ${e.time.toFixed(1)}s</span>`;
+                return '';
+            }).join('');
         }
     }
 };

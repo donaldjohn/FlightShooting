@@ -33,6 +33,9 @@
             document.getElementById('instructions').style.display = 'none';
         });
 
+        // 显示历史最高分
+        renderHighscores();
+
         // 关卡选择
         document.querySelectorAll('.btn-level').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -73,6 +76,7 @@
         document.getElementById('btnMenu').addEventListener('click', () => {
             AudioMgr.playClick();
             Game.quit();
+            renderHighscores(); // 返回菜单时刷新最高分
         });
     }
 
@@ -82,6 +86,32 @@
         document.getElementById('pauseScreen').style.display = 'none';
         document.getElementById('gameScreen').style.display = 'block';
         Game.startLevel(levelIdx);
+    }
+
+    // 渲染历史最高分
+    function renderHighscores() {
+        const box = document.getElementById('highscoreList');
+        if (!box) return;
+        let arr = [];
+        try {
+            arr = JSON.parse(localStorage.getItem('flightShooting_scores') || '[]');
+            arr.sort((a, b) => b.score - a.score); // 按分数降序
+        } catch (e) {}
+        if (arr.length === 0) {
+            box.innerHTML = '<div style="text-align:center;color:#888;padding:8px;">暂无记录，挑战第一关吧！</div>';
+            return;
+        }
+        const top = arr.slice(0, 5);
+        box.innerHTML = top.map((s, i) => {
+            const d = new Date(s.date);
+            const dateStr = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+            return `<div class="highscore-item">
+                <span class="rank">#${i+1}</span>
+                <span class="name">第${s.level}关</span>
+                <span class="score">${s.score}</span>
+                <span class="date">${dateStr}</span>
+            </div>`;
+        }).join('');
     }
 
     function loop() {
