@@ -422,6 +422,11 @@ const Game = {
         document.getElementById('btnNext').style.display = (victory && !isLast) ? 'block' : 'none';
         document.getElementById('btnReplay').textContent = isLast ? '再来一次' : '重新挑战';
 
+        // 最终关胜利 - 显示特殊通关页面
+        if (victory && isLast) {
+            this._showFinalScreen();
+        }
+
         // 保存分数到 localStorage
         this._saveScore();
 
@@ -450,6 +455,74 @@ const Game = {
             arr.sort((a, b) => b.score - a.score);
             localStorage.setItem(key, JSON.stringify(arr.slice(0, 20)));
         } catch (e) {}
+    },
+
+    /**
+     * 显示最终通关页面
+     */
+    _showFinalScreen() {
+        // 累积本局数据（从所有关卡）
+        const totalScore = this.score;
+        const totalKills = this.kills;
+        const totalCombo = this.maxCombo;
+        const achCount = Achievements.getUnlockedCount();
+
+        document.getElementById('finalScore').textContent = totalScore;
+        document.getElementById('finalKills').textContent = totalKills;
+        document.getElementById('finalCombo').textContent = totalCombo;
+        document.getElementById('finalAch').textContent = achCount + ' / 5';
+
+        // 延迟显示,让玩家先看到结束面板
+        setTimeout(() => {
+            document.getElementById('endScreen').style.display = 'none';
+            document.getElementById('finalScreen').style.display = 'flex';
+            this._spawnFireworks();
+            // 播放胜利音效 (用警告音代替)
+            AudioMgr.playPowerup();
+        }, 1500);
+    },
+
+    /**
+     * 生成烟花粒子
+     */
+    _spawnFireworks() {
+        const container = document.getElementById('fireworks');
+        if (!container) return;
+        const colors = ['#ffd43b', '#ff6b6b', '#4dabf7', '#51cf66', '#cc5de8', '#ff922b'];
+        // 多个烟花
+        for (let i = 0; i < 8; i++) {
+            setTimeout(() => {
+                this._spawnSingleFirework(container, colors);
+            }, i * 400);
+        }
+        // 持续生成
+        let count = 0;
+        const interval = setInterval(() => {
+            this._spawnSingleFirework(container, colors);
+            count++;
+            if (count > 20) clearInterval(interval);
+        }, 600);
+    },
+
+    _spawnSingleFirework(container, colors) {
+        const cx = Utils.rand(100, window.innerWidth - 100);
+        const cy = Utils.rand(50, window.innerHeight / 2);
+        const count = Utils.randInt(15, 25);
+        const color = colors[Utils.randInt(0, colors.length - 1)];
+        for (let i = 0; i < count; i++) {
+            const p = document.createElement('div');
+            p.className = 'firework-particle';
+            p.style.left = cx + 'px';
+            p.style.top = cy + 'px';
+            p.style.background = color;
+            p.style.boxShadow = '0 0 8px ' + color;
+            const angle = (i / count) * Math.PI * 2;
+            const dist = Utils.rand(80, 160);
+            p.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+            p.style.setProperty('--dy', Math.sin(angle) * dist + 'px');
+            container.appendChild(p);
+            setTimeout(() => p.remove(), 1600);
+        }
     },
 
     /**

@@ -34,6 +34,16 @@
             AudioMgr.playClick();
             document.getElementById('instructions').style.display = 'none';
         });
+        // 关于按钮
+        document.getElementById('btnAbout').addEventListener('click', () => {
+            AudioMgr.playClick();
+            document.getElementById('aboutAchCount').textContent = Achievements.getUnlockedCount();
+            document.getElementById('aboutPanel').style.display = 'block';
+        });
+        document.getElementById('btnAboutClose').addEventListener('click', () => {
+            AudioMgr.playClick();
+            document.getElementById('aboutPanel').style.display = 'none';
+        });
 
         // 音效开关
         const savedSound = localStorage.getItem('flightShooting_sound');
@@ -107,6 +117,18 @@
             AudioMgr.playClick();
             Game.quit();
             renderHighscores(); // 返回菜单时刷新最高分
+        });
+        // 最终通关页面
+        document.getElementById('btnFinalRestart').addEventListener('click', () => {
+            AudioMgr.playClick();
+            document.getElementById('finalScreen').style.display = 'none';
+            startGame(0); // 重新从第1关开始
+        });
+        document.getElementById('btnFinalMenu').addEventListener('click', () => {
+            AudioMgr.playClick();
+            document.getElementById('finalScreen').style.display = 'none';
+            Game.quit();
+            renderHighscores();
         });
     }
 

@@ -19,6 +19,7 @@
             <button class="btn btn-primary" id="btnStart">开始游戏</button>
             <button class="btn" id="btnInstructions">操作说明</button>
             <button class="btn btn-sound" id="btnSound">🔊 音效：开</button>
+            <button class="btn" id="btnAbout">ℹ️ 关于</button>
             <div class="color-picker">
                 <h3>选择战机涂装</h3>
                 <div class="color-options">
@@ -67,6 +68,39 @@
                 </div>
             </div>
             <button class="btn" id="btnBack">返回</button>
+        </div>
+        <!-- 关于页面 -->
+        <div class="about-panel" id="aboutPanel" style="display:none;">
+            <h2>关于</h2>
+            <div class="about-content">
+                <h3>天空霸者</h3>
+                <p class="about-tagline">基于 Three.js 的 3D 飞行射击游戏</p>
+                <p class="about-version">版本 1.0</p>
+                <div class="about-section">
+                    <h4>技术栈</h4>
+                    <ul>
+                        <li>Three.js 0.155 - 3D 渲染引擎</li>
+                        <li>Web Audio API - 程序化音效合成</li>
+                        <li>WebGL - GPU 加速</li>
+                        <li>localStorage - 用户数据持久化</li>
+                    </ul>
+                </div>
+                <div class="about-section">
+                    <h4>特色</h4>
+                    <ul>
+                        <li>所有 3D 模型和音效均由代码程序化生成</li>
+                        <li>零外部资源依赖（除 Three.js CDN）</li>
+                        <li>支持桌面端键鼠和移动端触屏</li>
+                        <li>4 个关卡 + BOSS 三阶段战斗</li>
+                    </ul>
+                </div>
+                <div class="about-section">
+                    <h4>成就</h4>
+                    <p>已解锁: <span id="aboutAchCount">0</span> / 5</p>
+                </div>
+                <p class="about-footer">Made with ❤️ by Claude & 赵总</p>
+            </div>
+            <button class="btn" id="btnAboutClose">关闭</button>
         </div>
     </div>
 
@@ -174,6 +208,42 @@
             <button class="btn btn-primary" id="btnNext">下一关</button>
             <button class="btn" id="btnReplay">重新挑战</button>
             <button class="btn" id="btnMenu">返回主菜单</button>
+        </div>
+    </div>
+
+    <!-- 最终通关界面 -->
+    <div id="finalScreen" class="screen overlay" style="display:none;">
+        <div class="fireworks" id="fireworks"></div>
+        <div class="final-panel">
+            <div class="final-title">
+                <div class="crown">👑</div>
+                <h1>游戏通关！</h1>
+                <h2>您已征服天空</h2>
+            </div>
+            <div class="final-stats">
+                <div class="final-stat">
+                    <div class="stat-label">最终得分</div>
+                    <div class="stat-value" id="finalScore">0</div>
+                </div>
+                <div class="final-stat">
+                    <div class="stat-label">击毁敌机</div>
+                    <div class="stat-value" id="finalKills">0</div>
+                </div>
+                <div class="final-stat">
+                    <div class="stat-label">最高连击</div>
+                    <div class="stat-value" id="finalCombo">0</div>
+                </div>
+                <div class="final-stat">
+                    <div class="stat-label">成就解锁</div>
+                    <div class="stat-value" id="finalAch">0 / 5</div>
+                </div>
+            </div>
+            <div class="final-message">
+                感谢您游玩《天空霸者》！<br>
+                您的飞行技能已达到巅峰！
+            </div>
+            <button class="btn btn-primary" id="btnFinalRestart">再来一次</button>
+            <button class="btn" id="btnFinalMenu">返回主菜单</button>
         </div>
     </div>
 
