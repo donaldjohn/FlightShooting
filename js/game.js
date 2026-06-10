@@ -74,6 +74,16 @@ const Game = {
         this.playerLight.position.set(0, 0, 0.5);
         this.player.add(this.playerLight);
 
+        // 护盾视觉效果
+        this.shieldVisual = this._createShieldVisual();
+        this.shieldVisual.visible = false;
+        this.player.add(this.shieldVisual);
+
+        // 双倍伤害视觉效果
+        this.damageVisual = this._createDamageVisual();
+        this.damageVisual.visible = false;
+        this.player.add(this.damageVisual);
+
         // 初始化模块
         BulletMgr.init(this.scene);
         EnemyMgr.init(this.scene);
@@ -82,11 +92,66 @@ const Game = {
 
         this.clock = new THREE.Clock();
         this._setupInput();
+        this._setupVisibilityHandler();
 
         window.addEventListener('resize', () => this._onResize());
     },
 
+    _setupVisibilityHandler() {
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && this.state === 'playing') {
+                this.pause();
+            }
+        });
+    },
+
+    _createShieldVisual() {
+        // 蓝色半透明球壳
+        const group = new THREE.Group();
+        // 内层球
+        const innerGeo = new THREE.SphereGeometry(2.0, 24, 16);
+        const innerMat = new THREE.MeshBasicMaterial({
+            color: 0x4dabf7,
+            transparent: true,
+            opacity: 0.35,
+            side: THREE.DoubleSide,
+            depthWrite: false
+        });
+        group.add(new THREE.Mesh(innerGeo, innerMat));
+        // 外层线框
+        const wireGeo = new THREE.SphereGeometry(2.1, 16, 12);
+        const wireMat = new THREE.MeshBasicMaterial({
+            color: 0x4dabf7,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.7
+        });
+        group.add(new THREE.Mesh(wireGeo, wireMat));
+        return group;
+    },
+
+    _createDamageVisual() {
+        // 黄色光环
+        const group = new THREE.Group();
+        for (let i = 0; i < 3; i++) {
+            const geo = new THREE.RingGeometry(1.3 + i * 0.2, 1.5 + i * 0.2, 32);
+            const mat = new THREE.MeshBasicMaterial({
+                color: 0xffd43b,
+                transparent: true,
+                opacity: 0.85 - i * 0.15,
+                side: THREE.DoubleSide,
+                depthWrite: false,
+                blending: THREE.AdditiveBlending
+            });
+            const ring = new THREE.Mesh(geo, mat);
+            ring.rotation.x = Math.PI / 2;
+            group.add(ring);
+        }
+        return group;
+    },
+
     _setupLights() {
+        // 光照设置
         // 主光源 (太阳)
         const sun = new THREE.DirectionalLight(0xfff4e0, 1.2);
         sun.position.set(30, 40, 20);
@@ -443,6 +508,21 @@ const Game = {
             this.player.visible = Math.sin(performance.now() * 0.03) > 0;
         } else {
             this.player.visible = true;
+        }
+
+        // 护盾和双倍伤害视觉效果
+        this.shieldVisual.visible = PowerupMgr.isActive('shield');
+        if (this.shieldVisual.visible) {
+            const pulse = 1 + Math.sin(performance.now() * 0.008) * 0.1;
+            this.shieldVisual.scale.setScalar(pulse);
+        }
+        this.damageVisual.visible = PowerupMgr.isActive('damage');
+        if (this.damageVisual.visible) {
+            this.damageVisual.rotation.z += dt * 2;
+            const t = performance.now() * 0.005;
+            this.damageVisual.children.forEach((ring, i) => {
+                ring.scale.setScalar(1 + Math.sin(t + i) * 0.1);
+            });
         }
     },
 

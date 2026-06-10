@@ -136,6 +136,20 @@ html, body {
     background: linear-gradient(135deg, #1864ab, #339af0);
 }
 
+.btn-sound {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: #888;
+    color: #ccc;
+    font-size: 16px;
+    padding: 10px 30px;
+    min-width: 180px;
+}
+
+.btn-sound:hover {
+    border-color: #4dabf7;
+    color: #fff;
+}
+
 .level-select {
     margin-top: 30px;
     text-align: center;

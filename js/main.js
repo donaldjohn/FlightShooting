@@ -33,6 +33,25 @@
             document.getElementById('instructions').style.display = 'none';
         });
 
+        // 音效开关
+        const savedSound = localStorage.getItem('flightShooting_sound');
+        if (savedSound === 'off') {
+            AudioMgr.setMuted(true);
+        }
+        updateSoundButtons();
+        document.getElementById('btnSound').addEventListener('click', () => {
+            AudioMgr.setMuted(!AudioMgr.muted);
+            localStorage.setItem('flightShooting_sound', AudioMgr.muted ? 'off' : 'on');
+            updateSoundButtons();
+            if (!AudioMgr.muted) AudioMgr.playClick();
+        });
+        document.getElementById('btnSoundPause').addEventListener('click', () => {
+            AudioMgr.setMuted(!AudioMgr.muted);
+            localStorage.setItem('flightShooting_sound', AudioMgr.muted ? 'off' : 'on');
+            updateSoundButtons();
+            if (!AudioMgr.muted) AudioMgr.playClick();
+        });
+
         // 显示历史最高分
         renderHighscores();
 
@@ -112,6 +131,15 @@
                 <span class="date">${dateStr}</span>
             </div>`;
         }).join('');
+    }
+
+    // 更新音效开关按钮显示
+    function updateSoundButtons() {
+        const label = AudioMgr.muted ? '🔇 音效：关' : '🔊 音效：开';
+        const btn1 = document.getElementById('btnSound');
+        const btn2 = document.getElementById('btnSoundPause');
+        if (btn1) btn1.textContent = label;
+        if (btn2) btn2.textContent = label;
     }
 
     function loop() {

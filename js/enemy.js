@@ -102,6 +102,7 @@ const EnemyMgr = {
         mesh.lookAt(0, 0, 0);
 
         this.scene.add(mesh);
+
         const enemy = Object.assign({
             mesh,
             type: spec.type,
@@ -114,6 +115,15 @@ const EnemyMgr = {
             time: 0,
             lastFire: 0
         }, cfg);
+
+        // BOSS 添加头顶血条
+        if (spec.type === 'boss') {
+            const hb = this._createBossHealthBar();
+            mesh.add(hb.sprite);
+            enemy._healthBar = hb;
+            this._updateBossHealthBar(enemy);
+        }
+
         this.enemies.push(enemy);
     },
 
@@ -198,6 +208,12 @@ const EnemyMgr = {
         e.mesh.position.y = Math.cos(e.time * moveSpeed * 1.2) * 5;
         e.mesh.lookAt(playerPos);
 
+        // 更新 3D 头顶血条
+        if (e._healthBar) {
+            e._healthBar.ctx = e._healthBar.ctx; // ensure ctx
+            this._updateBossHealthBar(e);
+        }
+
         // 阶段3 召唤小弟
         if (e.phase === 3 && e.time - (e.lastSummon || 0) > 8) {
             this._spawnMinions(e);
@@ -209,6 +225,51 @@ const EnemyMgr = {
             this._fireBoss(e, playerPos);
             e.lastFire = e.time;
         }
+    },
+
+    _createBossHealthBar() {
+        // 头顶血条 (使用 Sprite 始终面向相机)
+        const canvas = document.createElement('canvas');
+        canvas.width = 256;
+        canvas.height = 32;
+        const texture = new THREE.CanvasTexture(canvas);
+        const mat = new THREE.SpriteMaterial({ map: texture, transparent: true });
+        const sprite = new THREE.Sprite(mat);
+        sprite.scale.set(8, 1, 1);
+        sprite.position.set(0, 3, 0);
+        return { sprite, canvas, ctx: canvas.getContext('2d'), texture };
+    },
+
+    _updateBossHealthBar(e) {
+        const hb = e._healthBar;
+        if (!hb) return;
+        const percent = e.health / e.maxHealth;
+        const ctx = hb.ctx;
+        const w = 256, h = 32;
+        ctx.clearRect(0, 0, w, h);
+        // 背景
+        ctx.fillStyle = 'rgba(0,0,0,0.7)';
+        ctx.fillRect(0, 0, w, h);
+        // 边框
+        ctx.strokeStyle = percent > 0.3 ? '#ffd43b' : '#ff6b6b';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(0, 0, w, h);
+        // 血量
+        const fillW = (w - 4) * percent;
+        const grad = ctx.createLinearGradient(2, 0, 2 + fillW, 0);
+        if (percent > 0.5) {
+            grad.addColorStop(0, '#51cf66');
+            grad.addColorStop(1, '#94d82d');
+        } else if (percent > 0.3) {
+            grad.addColorStop(0, '#ffd43b');
+            grad.addColorStop(1, '#fab005');
+        } else {
+            grad.addColorStop(0, '#ff6b6b');
+            grad.addColorStop(1, '#c92a2a');
+        }
+        ctx.fillStyle = grad;
+        ctx.fillRect(2, 2, fillW, h - 4);
+        hb.texture.needsUpdate = true;
     },
 
     _spawnMinions(boss) {
@@ -328,6 +389,11 @@ const EnemyMgr = {
         if (!e) return null;
         this.scene.remove(e.mesh);
         this._disposeEnemy(e);
+        // 清理 BOSS 血条
+        if (e._healthBar) {
+            e._healthBar.texture.dispose();
+            e._healthBar.sprite.material.dispose();
+        }
         this.enemies.splice(idx, 1);
         return e;
     }
