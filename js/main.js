@@ -37,7 +37,7 @@
         // 关于按钮
         document.getElementById('btnAbout').addEventListener('click', () => {
             AudioMgr.playClick();
-            document.getElementById('aboutAchCount').textContent = Achievements.getUnlockedCount();
+            renderAboutAchievements();
             document.getElementById('aboutPanel').style.display = 'block';
         });
         document.getElementById('btnAboutClose').addEventListener('click', () => {
@@ -177,6 +177,30 @@
                 <span class="name">第${s.level}关</span>
                 <span class="score">${s.score}</span>
                 <span class="date">${dateStr}</span>
+            </div>`;
+        }).join('');
+    }
+
+    // 渲染关于页面中的成就列表
+    function renderAboutAchievements() {
+        const list = document.getElementById('aboutAchList');
+        const countEl = document.getElementById('aboutAchCount');
+        if (!list || !countEl) return;
+        countEl.textContent = Achievements.getUnlockedCount();
+        list.innerHTML = Achievements.definitions.map(def => {
+            const unlocked = Achievements.isUnlocked(def.id);
+            const data = unlocked ? Achievements.unlocked[def.id] : null;
+            const dateStr = data ? (() => {
+                const d = new Date(data.date);
+                return `${d.getMonth()+1}/${d.getDate()}`;
+            })() : '';
+            return `<div class="ach-row ${unlocked ? 'unlocked' : ''}">
+                <span class="ach-icon">${unlocked ? '🏆' : '🔒'}</span>
+                <div class="ach-info">
+                    <span class="name">${def.name}</span>
+                    <span class="desc">${def.desc}</span>
+                </div>
+                <span class="ach-date">${dateStr}</span>
             </div>`;
         }).join('');
     }
