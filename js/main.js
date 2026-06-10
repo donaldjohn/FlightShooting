@@ -52,6 +52,9 @@
             if (!AudioMgr.muted) AudioMgr.playClick();
         });
 
+        // 触屏控制
+        setupTouchControls();
+
         // 显示历史最高分
         renderHighscores();
 
@@ -140,6 +143,51 @@
         const btn2 = document.getElementById('btnSoundPause');
         if (btn1) btn1.textContent = label;
         if (btn2) btn2.textContent = label;
+    }
+
+    // 设置触屏控制
+    function setupTouchControls() {
+        const touchControls = document.getElementById('touchControls');
+        if (!touchControls) return;
+        // 检测是否移动设备
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+            || ('ontouchstart' in window);
+        if (!isMobile) {
+            touchControls.style.display = 'none';
+            return;
+        }
+        touchControls.style.display = 'block';
+
+        const buttons = touchControls.querySelectorAll('.touch-btn[data-key]');
+        buttons.forEach(btn => {
+            const key = btn.getAttribute('data-key');
+            const press = (e) => {
+                e.preventDefault();
+                if (window.Game) {
+                    window.Game.keys[key] = true;
+                }
+            };
+            const release = (e) => {
+                e.preventDefault();
+                if (window.Game) {
+                    window.Game.keys[key] = false;
+                }
+            };
+            btn.addEventListener('touchstart', press, { passive: false });
+            btn.addEventListener('touchend', release, { passive: false });
+            btn.addEventListener('touchcancel', release, { passive: false });
+            btn.addEventListener('mousedown', press);
+            btn.addEventListener('mouseup', release);
+            btn.addEventListener('mouseleave', release);
+        });
+
+        const pauseBtn = document.getElementById('touchPause');
+        if (pauseBtn) {
+            pauseBtn.addEventListener('click', () => {
+                if (Game.state === 'playing') Game.pause();
+                else if (Game.state === 'paused') Game.resume();
+            });
+        }
     }
 
     function loop() {

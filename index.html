@@ -80,6 +80,23 @@
                 <div class="powerup-indicators" id="powerupIndicators"></div>
             </div>
         </div>
+        <!-- 伤害数字容器 -->
+        <div id="damageContainer" class="damage-container"></div>
+        <!-- 移动端虚拟控制 -->
+        <div class="touch-controls" id="touchControls" style="display:none;">
+            <div class="touch-pad">
+                <button class="touch-btn touch-up" data-key="KeyW">▲</button>
+                <div class="touch-row">
+                    <button class="touch-btn touch-left" data-key="KeyA">◀</button>
+                    <button class="touch-btn touch-right" data-key="KeyD">▶</button>
+                </div>
+                <button class="touch-btn touch-down" data-key="KeyS">▼</button>
+            </div>
+            <div class="touch-actions">
+                <button class="touch-btn touch-fire" data-key="Space">🔥 开火</button>
+                <button class="touch-btn touch-pause" id="touchPause">⏸</button>
+            </div>
+        </div>
     </div>
 
     <!-- 暂停界面 -->
@@ -95,6 +112,9 @@
 
     <!-- 结束界面 -->
     <div id="endScreen" class="screen overlay" style="display:none;">
+        <div class="new-record-banner" id="newRecordBanner" style="display:none;">
+            <div class="new-record-text">🏆 新纪录！</div>
+        </div>
         <div class="panel">
             <h2 id="endTitle">战斗结束</h2>
             <div class="end-stats">
@@ -119,6 +139,7 @@
     <script src="js/enemy.js"></script>
     <script src="js/explosion.js"></script>
     <script src="js/powerup.js"></script>
+    <script src="js/damageNumbers.js"></script>
     <script src="js/level.js"></script>
     <script src="js/hud.js"></script>
     <script src="js/game.js"></script>

@@ -89,6 +89,7 @@ const Game = {
         EnemyMgr.init(this.scene);
         ExplosionMgr.init(this.scene);
         PowerupMgr.init(this.scene);
+        DamageNumbers.init(document.getElementById('gameScreen'));
 
         this.clock = new THREE.Clock();
         this._setupInput();
@@ -273,6 +274,7 @@ const Game = {
         EnemyMgr.reset();
         ExplosionMgr.reset();
         PowerupMgr.reset();
+        DamageNumbers.reset();
 
         // 重置玩家位置和摄像机
         this.player.position.set(0, 0, 0);
@@ -354,6 +356,16 @@ const Game = {
             this.score += 1000;
         }
 
+        // 检查是否新纪录 (仅在胜利时)
+        let isNewRecord = false;
+        if (victory) {
+            try {
+                const arr = JSON.parse(localStorage.getItem('flightShooting_scores') || '[]');
+                const prevBest = arr.length > 0 ? Math.max(...arr.map(s => s.score)) : 0;
+                isNewRecord = this.score > prevBest;
+            } catch (e) {}
+        }
+
         document.getElementById('endTitle').textContent = victory ? '✈ 通关成功！' : '✈ 任务失败';
         document.getElementById('endTitle').style.color = victory ? '#51cf66' : '#ff6b6b';
         document.getElementById('endScore').textContent = this.score;
@@ -370,6 +382,14 @@ const Game = {
 
         // 保存分数到 localStorage
         this._saveScore();
+
+        // 显示新纪录横幅
+        const banner = document.getElementById('newRecordBanner');
+        if (isNewRecord && banner) {
+            banner.style.display = 'block';
+            // 3秒后自动隐藏
+            setTimeout(() => { banner.style.display = 'none'; }, 3000);
+        }
 
         document.getElementById('endScreen').style.display = 'flex';
     },
@@ -423,6 +443,9 @@ const Game = {
         PowerupMgr.update(dt, this.player.position, (type) => {
             PowerupMgr.applyEffect(type);
         });
+
+        // 伤害数字
+        DamageNumbers.update(dt);
 
         // 玩家射击
         this._handleShooting(dt);
@@ -585,6 +608,19 @@ const Game = {
             // 火花
             ExplosionMgr.spawnSpark(h.enemy.mesh.position.clone(), 0xffaa00);
 
+            // 伤害数字
+            const dmg = h.bullet.damage || 1;
+            const isCrit = dmg > 1;
+            const color = h.enemy.type === 'boss' ? '#ff6b6b'
+                : h.enemy.type === 'bomber' ? '#ffd43b'
+                : '#ffaa00';
+            DamageNumbers.spawn(
+                h.enemy.mesh.position.clone().add(new THREE.Vector3(0, 1, 0)),
+                `-${dmg}`,
+                color,
+                isCrit
+            );
+
             if (h.killed) {
                 this._onEnemyKilled(h.enemy);
                 const ei = EnemyMgr.enemies.indexOf(h.enemy);
@@ -657,6 +693,14 @@ const Game = {
         if (this.combo > 1) {
             HUD.showMessage(`连击 x${this.combo}  +${total}`, 1.0);
         }
+
+        // 分数弹出
+        DamageNumbers.spawn(
+            e.mesh.position.clone().add(new THREE.Vector3(0, 1.5, 0)),
+            `+${total}`,
+            '#51cf66',
+            e.type === 'boss'
+        );
 
         // 爆炸特效
         const isBig = e.type === 'boss' || e.type === 'bomber';
